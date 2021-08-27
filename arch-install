@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Main script for arch linux installation
+#
+# NB! Target drive should not have any existing partitions
+#
+#Code references:
+#https://github.com/MatMoul/archfi
+
+timedatectl set-ntp true
+
+#Select and format drive
+#-----------------------
+
+echo "Select drive for installation"
+echo "-----------------------------"
+lsblk
+echo "Enter drive name (e.g. /dev/sda)"
+read drive
+
+echo "Formatting..."
+echo "Creating label"
+parted ${drive} mklabel gpt
+echo "Creating EFI boot partition"
+sgdisk ${drive} -n=1:0:+512M -t=1:ef00
+echo "Creating root partition"
+sgdisk &{drive} -n=2:0:0
+
+if [ "${device::8}" == "/dev/nvm" ]; then
+				bootdev=${device}"p1"
+				swapdev=${device}"p2"
+				rootdev=${device}"p3"
+			else
+				bootdev=${device}"1"
+				swapdev=${device}"2"
+				rootdev=${device}"3"
+			fi
+			efimode="1"
+
